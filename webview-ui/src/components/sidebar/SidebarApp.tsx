@@ -3,6 +3,7 @@ import { usePostMessage } from "../../hooks/usePostMessage";
 import { useMessage } from "../../hooks/useMessage";
 import { useCollectionStore } from "../../store/collection.store";
 import { CollectionList } from "./CollectionList";
+import { EnvironmentSelector } from "./EnvironmentSelector";
 
 interface CollectionPayload {
   id: string;
@@ -31,6 +32,7 @@ export function SidebarApp() {
 
   return (
     <div className="p-2">
+      <EnvironmentSelector />
       <CollectionList />
     </div>
   );
