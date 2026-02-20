@@ -2,6 +2,10 @@
 
 VS Code extension for testing APIs with built-in token management. Send a login request, pick the token from the response, and it gets injected into your next requests automatically.
 
+![GET Request](assets/get-request.png)
+
+![POST Request](assets/post-request.png)
+
 ## Features
 
 - **Request Builder** — GET, POST, PUT, PATCH, DELETE with headers, query params and JSON body
