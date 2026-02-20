@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { getWebviewHtml } from "../utils/webview.util";
+import { handlePanelMessage } from "../handlers/panel.handler";
+import { PanelToExtension } from "../types/messages";
 
 export class PanelProvider {
   private static panels: Map<string, vscode.WebviewPanel> = new Map();
@@ -20,6 +22,10 @@ export class PanelProvider {
     );
 
     panel.webview.html = getWebviewHtml(panel.webview, extensionUri, "panel");
+
+    panel.webview.onDidReceiveMessage((message: PanelToExtension) => {
+      handlePanelMessage(message, panel);
+    });
 
     panel.onDidDispose(() => {
       PanelProvider.panels.delete(panelId);
