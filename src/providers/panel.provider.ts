@@ -1,10 +1,22 @@
 import * as vscode from "vscode";
 import { getWebviewHtml } from "../utils/webview.util";
-import { handlePanelMessage } from "../handlers/panel.handler";
 import { PanelToExtension } from "../types/messages";
+
+type PanelMessageHandler = (
+  message: PanelToExtension,
+  panel: vscode.WebviewPanel,
+  onTokenChange?: () => void
+) => void;
 
 export class PanelProvider {
   private static panels: Map<string, vscode.WebviewPanel> = new Map();
+  private static messageHandler: PanelMessageHandler;
+  private static onTokenChange?: () => void;
+
+  static init(handler: PanelMessageHandler, onTokenChange?: () => void) {
+    PanelProvider.messageHandler = handler;
+    PanelProvider.onTokenChange = onTokenChange;
+  }
 
   static createOrShow(extensionUri: vscode.Uri, title: string = "New Request"): vscode.WebviewPanel {
     const column = vscode.ViewColumn.One;
@@ -24,7 +36,7 @@ export class PanelProvider {
     panel.webview.html = getWebviewHtml(panel.webview, extensionUri, "panel");
 
     panel.webview.onDidReceiveMessage((message: PanelToExtension) => {
-      handlePanelMessage(message, panel);
+      PanelProvider.messageHandler(message, panel, PanelProvider.onTokenChange);
     });
 
     panel.onDidDispose(() => {
