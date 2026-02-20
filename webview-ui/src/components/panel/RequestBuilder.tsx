@@ -3,7 +3,11 @@ import { usePostMessage } from "../../hooks/usePostMessage";
 
 const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
 
-export function RequestBuilder() {
+interface RequestBuilderProps {
+  onSave?: () => void;
+}
+
+export function RequestBuilder({ onSave }: RequestBuilderProps) {
   const { method, url, headers, queryParams, body, loading, setMethod, setUrl, setLoading } = useRequestStore();
   const postMessage = usePostMessage();
 
@@ -59,6 +63,16 @@ export function RequestBuilder() {
       >
         {loading ? "Sending..." : "Send"}
       </button>
+
+      {onSave && (
+        <button
+          onClick={onSave}
+          disabled={!url.trim()}
+          className="px-3 py-1.5 border border-vscode-border rounded text-sm hover:bg-vscode-list-hover disabled:opacity-40 shrink-0"
+        >
+          Save
+        </button>
+      )}
     </div>
   );
 }
