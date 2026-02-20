@@ -9,7 +9,20 @@ function formatSize(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-export function ResponseViewer() {
+function isJsonResponse(body: string): boolean {
+  try {
+    JSON.parse(body);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+interface ResponseViewerProps {
+  onPickToken?: () => void;
+}
+
+export function ResponseViewer({ onPickToken }: ResponseViewerProps) {
   const response = useResponseStore((s) => s.response);
   const error = useResponseStore((s) => s.error);
   const [activeTab, setActiveTab] = useState("Body");
@@ -24,12 +37,22 @@ export function ResponseViewer() {
 
   if (!response) return null;
 
+  const showPickToken = onPickToken && isJsonResponse(response.body);
+
   return (
     <div className="border-t border-vscode-border mt-4">
       <div className="flex items-center gap-4 px-3 py-2">
         <StatusBadge status={response.status} statusText={response.statusText} />
         <span className="text-xs opacity-50">{response.time}ms</span>
         <span className="text-xs opacity-50">{formatSize(response.size)}</span>
+        {showPickToken && (
+          <button
+            onClick={onPickToken}
+            className="ml-auto text-xs px-2 py-1 rounded bg-vscode-button-bg text-vscode-button-fg hover:bg-vscode-button-hover"
+          >
+            Pick Token
+          </button>
+        )}
       </div>
 
       <TabBar
