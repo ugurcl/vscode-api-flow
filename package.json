@@ -1,0 +1,94 @@
+{
+  "name": "api-flow",
+  "displayName": "API Flow",
+  "description": "API client with smart auth and token management",
+  "version": "0.0.1",
+  "publisher": "ugurcl",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:ext\" \"npm run dev:webview\"",
+    "dev:ext": "node esbuild.js --watch",
+    "dev:webview": "cd webview-ui && npm run dev",
+    "build": "npm run build:ext && npm run build:webview",
+    "build:ext": "node esbuild.js --production",
+    "build:webview": "cd webview-ui && npm run build",
+    "package": "npm run build && vsce package",
+    "lint": "tsc --noEmit"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "api-flow",
+          "title": "API Flow",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "api-flow": [
+        {
+          "type": "webview",
+          "id": "apiFlow.sidebar",
+          "name": "Collections"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "apiFlow.newRequest",
+        "title": "New Request",
+        "category": "API Flow",
+        "icon": "$(add)"
+      },
+      {
+        "command": "apiFlow.newCollection",
+        "title": "New Collection",
+        "category": "API Flow",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "apiFlow.manageEnvironments",
+        "title": "Manage Environments",
+        "category": "API Flow",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "apiFlow.clearToken",
+        "title": "Clear Active Token",
+        "category": "API Flow"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "apiFlow.newRequest",
+          "when": "view == apiFlow.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "apiFlow.newCollection",
+          "when": "view == apiFlow.sidebar",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.5"
+  }
+}
