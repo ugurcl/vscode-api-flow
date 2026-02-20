@@ -3,8 +3,13 @@ import { PanelToExtension, ExtensionToPanel } from "../types/messages";
 import { sendRequest } from "../services/http.service";
 import { AuthService } from "../services/auth.service";
 import { CollectionService } from "../services/collection.service";
+import { VariableService } from "../services/variable.service";
 
-export function createPanelHandler(authService: AuthService, collectionService: CollectionService) {
+export function createPanelHandler(
+  authService: AuthService,
+  collectionService: CollectionService,
+  variableService: VariableService
+) {
   return function handlePanelMessage(
     message: PanelToExtension,
     panel: vscode.WebviewPanel,
@@ -14,15 +19,17 @@ export function createPanelHandler(authService: AuthService, collectionService: 
     const post = (msg: ExtensionToPanel) => panel.webview.postMessage(msg);
 
     switch (message.type) {
-      case "sendRequest":
+      case "sendRequest": {
+        const interpolated = variableService.interpolateRequest(message.payload);
         authService.getAuthHeaders().then((authHeaders) => {
-          return sendRequest(message.payload, authHeaders);
+          return sendRequest(interpolated, authHeaders);
         }).then((response) => {
           post({ type: "responseReceived", payload: response });
         }).catch((error: Error) => {
           post({ type: "requestError", payload: { message: error.message } });
         });
         break;
+      }
 
       case "saveRequest":
         collectionService
@@ -50,6 +57,12 @@ export function createPanelHandler(authService: AuthService, collectionService: 
           post({ type: "activeToken", payload: config });
         });
         break;
+
+      case "getEnvironmentVariables": {
+        const vars = variableService.getVariables();
+        post({ type: "variablesLoaded", payload: vars });
+        break;
+      }
     }
   };
 }

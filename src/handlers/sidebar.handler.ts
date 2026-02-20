@@ -1,8 +1,12 @@
 import * as vscode from "vscode";
 import { SidebarToExtension, ExtensionToSidebar } from "../types/messages";
 import { CollectionService } from "../services/collection.service";
+import { EnvironmentService } from "../services/environment.service";
 
-export function createSidebarHandler(collectionService: CollectionService) {
+export function createSidebarHandler(
+  collectionService: CollectionService,
+  environmentService: EnvironmentService
+) {
   return function handleSidebarMessage(
     message: SidebarToExtension,
     view: vscode.WebviewView,
@@ -37,6 +41,19 @@ export function createSidebarHandler(collectionService: CollectionService) {
           .then(() => {
             post({ type: "collectionsLoaded", payload: collectionService.getAll() });
           });
+        break;
+
+      case "getEnvironments":
+        post({ type: "environmentsLoaded", payload: environmentService.getAll() });
+        break;
+
+      case "setActiveEnvironment":
+        environmentService.setActive(message.payload.environmentId).then(() => {
+          post({
+            type: "activeEnvironmentChanged",
+            payload: { environmentId: message.payload.environmentId },
+          });
+        });
         break;
     }
   };
