@@ -2,12 +2,14 @@ import * as vscode from "vscode";
 import { PanelToExtension, ExtensionToPanel } from "../types/messages";
 import { sendRequest } from "../services/http.service";
 import { AuthService } from "../services/auth.service";
+import { CollectionService } from "../services/collection.service";
 
-export function createPanelHandler(authService: AuthService) {
+export function createPanelHandler(authService: AuthService, collectionService: CollectionService) {
   return function handlePanelMessage(
     message: PanelToExtension,
     panel: vscode.WebviewPanel,
-    onTokenChange?: () => void
+    onTokenChange?: () => void,
+    onCollectionChange?: () => void
   ) {
     const post = (msg: ExtensionToPanel) => panel.webview.postMessage(msg);
 
@@ -20,6 +22,14 @@ export function createPanelHandler(authService: AuthService) {
         }).catch((error: Error) => {
           post({ type: "requestError", payload: { message: error.message } });
         });
+        break;
+
+      case "saveRequest":
+        collectionService
+          .saveRequest(message.payload.collectionId, message.payload)
+          .then(() => {
+            onCollectionChange?.();
+          });
         break;
 
       case "setToken":
